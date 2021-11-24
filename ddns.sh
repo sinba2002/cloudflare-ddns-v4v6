@@ -14,25 +14,12 @@ record_type="A"
 proxy="false"
 
 
-
-
-
 #获取IP地址
 if [ $record_type = "A" ];then
     ip=`ifconfig | grep -A 2 ppp0 | grep inet\ addr | awk '{print $2}' | cut -c 6-`        
 else
     ip=`ifconfig | grep -A 2 ppp0 | grep inet6 | awk '{print $3}' | cut -d '/' -f 1`     
 fi
-
-#上传日记
-logger -t "[CloudFlare]" "${record_name} : ${ip}"
-
-
-
-
-
-
-
 
 
 #start Get zone identifier
@@ -41,3 +28,8 @@ record_id=`curl -ksX GET "https://api.cloudflare.com/client/v4/zones/${zone_id}/
 
 #update
 curl -ksX PUT "https://api.cloudflare.com/client/v4/zones/${zone_id}/dns_records/${record_id}" -k -H "X-Auth-Email: ${email}" -H "X-Auth-Key: ${GAK}" -H "Content-Type: application/json" --data "{\"id\":\"$record_id\",\"type\":\"$record_type\",\"name\":\"$record_name\",\"content\":\"$ip\",\"proxied\":$proxy}"
+
+
+#上传日记
+logger -t "[CloudFlare]" "${record_name} : ${ip}"
+echo "[CloudFlare]" "${record_name} : ${ip}"
